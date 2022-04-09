@@ -21,6 +21,8 @@ const medicineList = require('./routes/medicineList')
 const biometric = require('./routes/biometric')
 const ward = require('./routes/ward')
 const status = require('./routes/updateStatus')
+const wardlist = require('./routes/wardlists')
+
 // error handler
 onerror(app)
 
@@ -60,6 +62,7 @@ app.use(medicineList.routes(), medicineList.allowedMethods())
 app.use(biometric.routes(), biometric.allowedMethods())
 app.use(ward.routes(),ward.allowedMethods())
 app.use(status.routes(),status.allowedMethods())
+app.use(wardlist.routes(),wardlist.allowedMethods())
 
 // error-handling
 app.on('error', (err, ctx) => {

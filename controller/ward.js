@@ -1,4 +1,4 @@
-const { Ward, Patient} = require('../models')
+const { Ward, Patient } = require('../models')
 const crud = require('./utils/index')
 
 const wardInfo =async (ctx)=>{
@@ -88,11 +88,23 @@ const wardUpdatePrice = async (ctx)=>{
   await crud.update(Ward,{wardType: roomName},{"$set": {'price' : price}},ctx,msg)
 }
 
+const wardFindPatientInfo = async (ctx)=>{
+  let {patientId} = ctx.request.body;
+  await crud.find(Ward,{'patientId':patientId},ctx)
+}
+
+const getWardPatientInfo = async (ctx) =>{
+  let { wardType = '', wardRoom='', wardBed='' } = ctx.request.body;
+  await crud.find(Patient,{$and:[{'wardType':wardType},{'wardRoom':wardRoom},{'wardBed':wardBed}]},ctx)
+}
+
 module.exports = {
   wardInfo,
   wardUpdatePrice,
   wardFindType,
   wardFindRoom,
   wardFindBed,
-  wardInPatient
+  wardInPatient,
+  wardFindPatientInfo,
+  getWardPatientInfo
 }

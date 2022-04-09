@@ -14,5 +14,4 @@ router.post('/personalPatientInfo',patientCtrl.personalPatientInfo)
 router.get('/allOutList',patientCtrl.patientOutAll)
 
 router.post('/personaloutPatientInfo',patientCtrl.personaloutPatientInfo)
-
 module.exports = router

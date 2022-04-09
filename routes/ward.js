@@ -8,4 +8,6 @@ router.post('/wardFindType',wardCtrl.wardFindType)
 router.post('/wardFindRoom',wardCtrl.wardFindRoom)
 router.post('/wardFindBed',wardCtrl.wardFindBed)
 router.post('/wardInPatient',wardCtrl.wardInPatient)
+router.post('/wardFindPatientInfo',wardCtrl.wardFindPatientInfo)
+router.post('/getWardPatientInfo',wardCtrl.getWardPatientInfo)
 module.exports = router

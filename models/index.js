@@ -71,9 +71,17 @@ const biometricSchema = new mongoose.Schema({
 const wardSchema = new mongoose.Schema({
   wardType: String,
   wardRoom: String,
-  price: String,
   wardBed: String,
-  patientId: String
+  patientId: String,
+  doctorid: String,
+  nurseid: String
+})
+
+const wardListSchema = new mongoose.Schema({
+  wardType: String,
+  wardRoom: Array,
+  wardBed: Array,
+  price: String
 })
 
 const User = mongoose.model('users',userSchema)
@@ -83,7 +91,7 @@ const Medicine = mongoose.model('medicines', medicineSchema)
 const MedicineList = mongoose.model('medicinelists', medicineListSchema)
 const Biometric = mongoose.model('biometric', biometricSchema)
 const Ward = mongoose.model('ward',wardSchema)
-
+const WardList = mongoose.model('wardlists', wardListSchema)
 module.exports = {
   User,
   Patient,
@@ -91,5 +99,6 @@ module.exports = {
   Medicine,
   MedicineList,
   Biometric,
-  Ward
+  Ward,
+  WardList
 }
