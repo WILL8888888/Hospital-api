@@ -10,4 +10,6 @@ router.post('/wardFindBed',wardCtrl.wardFindBed)
 router.post('/wardInPatient',wardCtrl.wardInPatient)
 router.post('/wardFindPatientInfo',wardCtrl.wardFindPatientInfo)
 router.post('/getWardPatientInfo',wardCtrl.getWardPatientInfo)
+router.post('/wardSpareBed',wardCtrl.wardSpareBed)
+router.post('/wardAddRoom',wardCtrl.wardAddRoom)
 module.exports = router

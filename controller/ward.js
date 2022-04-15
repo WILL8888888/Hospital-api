@@ -1,4 +1,4 @@
-const { Ward, Patient } = require('../models')
+const { Ward, Patient, WardList} = require('../models')
 const crud = require('./utils/index')
 
 const wardInfo =async (ctx)=>{
@@ -90,12 +90,47 @@ const wardUpdatePrice = async (ctx)=>{
 
 const wardFindPatientInfo = async (ctx)=>{
   let {patientId} = ctx.request.body;
-  await crud.find(Ward,{'patientId':patientId},ctx)
+  await crud.find(Ward, {'patientId':patientId},ctx)
 }
 
 const getWardPatientInfo = async (ctx) =>{
   let { wardType = '', wardRoom='', wardBed='' } = ctx.request.body;
+  console.log(wardType,wardRoom,wardBed)
   await crud.find(Patient,{$and:[{'wardType':wardType},{'wardRoom':wardRoom},{'wardBed':wardBed}]},ctx)
+}
+
+const wardSpareBed = async (ctx)=>{
+  let {wardType = ''} = ctx.request.body;
+  await Ward.find({'wardType': wardType}).then(res=>{
+    let wardBedArr = res.map(item => {
+      if(!item.patientId)
+        return {
+          'wardBed' : item.wardBed,
+          'wardRoom' : item.wardRoom}
+    }).filter(Boolean)
+
+    ctx.body = {
+      result: wardBedArr,
+      code: 200
+    }
+  }).catch(err => {
+    ctx.body = {
+      code: 400,
+    }
+    console.error(err)
+  })
+}
+
+const wardAddRoom =async (ctx)=>{
+  let {wardType = '', roomName = '',bedNum = 0, newRoomNurseId = '', newRoomDoctorId = ''} = ctx.request.body;
+  let bedNumArray = [1,2,3,4]
+  bedNumArray.length = bedNum
+  let addArr = [];
+  bedNumArray.forEach(async item =>{
+    let wardBed = `00${(item)}床`
+    addArr.push({'wardType':wardType,'wardRoom':roomName,'wardBed':wardBed,'patientId': '','doctorid': newRoomDoctorId,'nurseid': newRoomNurseId})
+  })
+  await crud.add(Ward,addArr,ctx)
 }
 
 module.exports = {
@@ -106,5 +141,7 @@ module.exports = {
   wardFindBed,
   wardInPatient,
   wardFindPatientInfo,
-  getWardPatientInfo
+  getWardPatientInfo,
+  wardSpareBed,
+  wardAddRoom
 }

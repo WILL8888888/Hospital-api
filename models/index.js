@@ -81,7 +81,7 @@ const wardListSchema = new mongoose.Schema({
   wardType: String,
   wardRoom: Array,
   wardBed: Array,
-  price: String
+  price: Number
 })
 
 const User = mongoose.model('users',userSchema)

@@ -1,4 +1,4 @@
-const add =async (model,params,ctx,msg) => {
+const add =async (model,params,ctx,msg = {success: '添加完成', fail: '添加失败', error: '添加错误'}) => {
   await model.create(params).then(res => {
     if(res){
       ctx.body = {
