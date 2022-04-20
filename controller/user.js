@@ -24,7 +24,7 @@ const userRegister = async (ctx) => {
     fail: '注册失败',
     error: '注册出现异常'
   }
-  await crud.add(User,{workid, name, password, role, level, department, defendStatus},ctx,msg)
+  await crud.add(User,{workid, name, password, role, level, department, defendStatus, manage:'user'},ctx,msg)
 }
 
 //用户登录
@@ -33,6 +33,7 @@ const userLogin = async (ctx) => {
 
   await User.findOne({workid}).then(res => {
     let workName = res.name
+    let manage = res.manage
     const checkPassword = Crypt.decrypt(password, res.password);
     if(checkPassword){
       let token = jwt.sign({
@@ -47,7 +48,8 @@ const userLogin = async (ctx) => {
         msg: '登录成功',
         token,
         workName,
-        workid
+        workid,
+        manage
       }
     }else{
       ctx.body = {
@@ -151,6 +153,51 @@ const askingUser = async (ctx)=> {
 const allUserInfo = async (ctx)=> {
   await crud.find(User,null,ctx)
 }
+
+const passwordCheck = async (ctx)=> {
+  let {workid,password} = ctx.request.body;
+  await User.findOne({workid}).then(res => {
+    const checkPassword = Crypt.decrypt(password, res.password);
+    if(checkPassword){
+      ctx.body = {
+        code: 200,
+        msg: '权限验证成功！'
+      }
+    }else{
+      ctx.body = {
+        code: 400,
+        msg: '密码错误，权限验证失败！'
+      }
+    }
+  })
+}
+
+const updateTitleName = async (ctx)=> {
+  const {titleName = '', workid = ''} = ctx.request.body;
+  let msg = {
+    success: '修改成功',
+    fail: '修改失败'
+  }
+  await crud.update(User, {'workid' : workid},{"$set": {'level' : titleName}}, ctx, msg) 
+}
+
+const updateIdentify = async (ctx)=> {
+  const {identify = '', workid = ''} = ctx.request.body;
+  let msg = {
+    success: '修改成功',
+    fail: '修改失败'
+  }
+  await crud.update(User, {'workid' : workid},{"$set": {'manage' : identify}}, ctx, msg) 
+}
+
+const deleteUser = async (ctx)=> {
+  const {workid = ''} = ctx.request.body;
+  let msg = {
+    success: '删除成功',
+    fail: '删除失败'
+  }
+  await crud.del(User,{'workid':workid},ctx,msg)
+}
 module.exports = {
   userRegister,
   userLogin,
@@ -163,5 +210,9 @@ module.exports = {
   defendStatusWaitAsk,
   askingUser,
   allUserInfo,
-  personalInfo
+  personalInfo,
+  passwordCheck,
+  updateTitleName,
+  updateIdentify,
+  deleteUser
 }

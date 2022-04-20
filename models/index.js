@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   department: String,
   defendStatus: String,
   defendItem: String,
-  medicineInfo: Object
+  medicineInfo: Object,
+  manage: String
 })
 
 const patientSchema = new mongoose.Schema({

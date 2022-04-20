@@ -29,4 +29,9 @@ router.get('/allUserInfo',userCtrl.allUserInfo)
 
 //获取个人信息
 router.post('/personalInfo',userCtrl.personalInfo)
+
+router.post('/passwordCheck',userCtrl.passwordCheck)
+router.post('/updateTitleName',userCtrl.updateTitleName)
+router.post('/updateIdentify',userCtrl.updateIdentify)
+router.post('/deleteUser',userCtrl.deleteUser)
 module.exports = router
