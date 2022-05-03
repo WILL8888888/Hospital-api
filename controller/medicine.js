@@ -1,5 +1,6 @@
-const { Medicine } = require('../models')
+const { Medicine, Log} = require('../models')
 const crud = require('./utils/index')
+const { timeShow } = require('../utils/index')
 
 const medicineAdd = async (ctx) => {
   let {medicineid= '', medicineName= '', price= 0, inventory= 0} = ctx.request.body
@@ -32,6 +33,11 @@ const medicineAdd = async (ctx) => {
     await crud.update(Medicine, {$or:[{'medicineid' : medicineid},{'medicineName': medicineName}]},{"$set": {'inventory' : inventoryTotal}}, ctx, msg)
   }else{
     await crud.add(Medicine,{medicineid, medicineName, price, 'inventory': inventoryTotal},ctx, msg)
+  }
+
+  if(inventory !== -1){
+    const log = `${medicineName}已经添加入库, 入库数量：${inventoryTotal}`;
+    await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
   }
 }
 

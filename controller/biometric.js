@@ -1,6 +1,7 @@
-const { Biometric } = require('../models')
+const { Biometric, Log} = require('../models')
 const crud = require('./utils/index')
 let outStatus = {'biometricStatus': 'outHospital'}
+const { timeShow } = require('../utils/index')
 
 const biometricAdd = async (ctx)=>{
   let {name = '', idnum = '', temperature = '', heartrate = '', bloodsugar = '', covid = '', checktime = '',biometricStatus=''} = ctx.request.body
@@ -25,7 +26,9 @@ const biometricAdd = async (ctx)=>{
     checktime = [checktime];
     await crud.add(Biometric, {name , idnum, temperature, heartrate, bloodsugar, covid , checktime,biometricStatus}, ctx, msg)
   }
-  
+  const log = `病人${name}的体征数据录入`
+
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 const biometricSearch = async (ctx)=>{
@@ -38,6 +41,7 @@ const biometricOutSearch = async (ctx)=>{
   let {idnum = ''} = ctx.request.body;
   await crud.find(Biometric,{$and:[{'idnum' : idnum},outStatus]},ctx)
 }
+
 module.exports = {
   biometricAdd,
   biometricSearch,

@@ -1,7 +1,12 @@
-const {User} = require('../models')
+const {User, Log} = require('../models')
 const crud = require('./utils/index')
 let jwt = require('jsonwebtoken')
 const Crypt = require("../utils/crypt");
+const { timeShow } = require('../utils/index')
+const roleManage = {
+  'manager' : '管理员',
+  'user' : '使用者'
+}
 
 //注册用户
 const userRegister = async (ctx) => {
@@ -34,6 +39,7 @@ const userLogin = async (ctx) => {
   await User.findOne({workid}).then(res => {
     let workName = res.name
     let manage = res.manage
+    let role = res.role
     const checkPassword = Crypt.decrypt(password, res.password);
     if(checkPassword){
       let token = jwt.sign({
@@ -49,7 +55,8 @@ const userLogin = async (ctx) => {
         token,
         workName,
         workid,
-        manage
+        manage,
+        role
       }
     }else{
       ctx.body = {
@@ -71,7 +78,7 @@ const userLogin = async (ctx) => {
 const verify = async ctx=>{
   let token = ctx.header.authorization
   token = token.replace('Bearer ','')
-
+  
   try{
     let result = jwt.verify(token, 'hospital-server-jwt')
     await User.findOne({_id: result._id}).then(res => {
@@ -132,9 +139,11 @@ const defendStatusAsking = async (ctx)=> {
     fail: '申请失败'
   }
   await crud.update(User, {'workid' : workid},{"$set": {'defendItem' : defendList.join(', '), 'defendStatus' : 'asking'}}, ctx, msg)
+  const log = `工号${workid}申请防护用品${defendList.join(', ')}`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
-//更改防护状态为申请中
+//更改防护状态为待申请
 const defendStatusWaitAsk = async (ctx)=> {
   let { workid } = ctx.request.body
   console.log(workid)
@@ -142,7 +151,9 @@ const defendStatusWaitAsk = async (ctx)=> {
     success: '派发成功',
     fail: '派发失败'
   }
-  await crud.update(User, {'workid' : workid},{"$set": {'defendStatus' : 'waitAsk'}}, ctx, msg)
+  await crud.update(User, {'workid' : workid},{"$set": {'defendStatus' : 'waitAsk'}}, ctx, msg);
+  const log = `工号${workid}所需防护用品已经申请完成`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 const askingUser = async (ctx)=> {
@@ -152,6 +163,11 @@ const askingUser = async (ctx)=> {
 //获取全部用户信息
 const allUserInfo = async (ctx)=> {
   await crud.find(User,null,ctx)
+}
+
+const verifyRole = async (ctx)=> {
+  const {workid = ''} = ctx.request.body;
+  await crud.find(User,{'workid':workid},ctx)
 }
 
 const passwordCheck = async (ctx)=> {
@@ -178,7 +194,10 @@ const updateTitleName = async (ctx)=> {
     success: '修改成功',
     fail: '修改失败'
   }
-  await crud.update(User, {'workid' : workid},{"$set": {'level' : titleName}}, ctx, msg) 
+
+  await crud.update(User, {'workid' : workid},{"$set": {'level' : titleName}}, ctx, msg)
+  const log = `工号${workid}职称更改为了${titleName}`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx) 
 }
 
 const updateIdentify = async (ctx)=> {
@@ -187,7 +206,9 @@ const updateIdentify = async (ctx)=> {
     success: '修改成功',
     fail: '修改失败'
   }
-  await crud.update(User, {'workid' : workid},{"$set": {'manage' : identify}}, ctx, msg) 
+  await crud.update(User, {'workid' : workid},{"$set": {'manage' : identify}}, ctx, msg)
+  const log = `工号${workid}管理身份更改为了${roleManage[identify]}`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 const deleteUser = async (ctx)=> {
@@ -197,7 +218,11 @@ const deleteUser = async (ctx)=> {
     fail: '删除失败'
   }
   await crud.del(User,{'workid':workid},ctx,msg)
+  const log = `工号${workid}用户已被删除`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
+
+
 module.exports = {
   userRegister,
   userLogin,
@@ -214,5 +239,6 @@ module.exports = {
   passwordCheck,
   updateTitleName,
   updateIdentify,
-  deleteUser
+  deleteUser,
+  verifyRole
 }

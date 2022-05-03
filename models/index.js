@@ -85,6 +85,11 @@ const wardListSchema = new mongoose.Schema({
   price: Number
 })
 
+const logsSchema = new mongoose.Schema({
+  time: String,
+  log: String
+})
+
 const User = mongoose.model('users',userSchema)
 const Patient = mongoose.model('patients', patientSchema)
 const Defend = mongoose.model('defends', defendSchema)
@@ -93,6 +98,8 @@ const MedicineList = mongoose.model('medicinelists', medicineListSchema)
 const Biometric = mongoose.model('biometric', biometricSchema)
 const Ward = mongoose.model('ward',wardSchema)
 const WardList = mongoose.model('wardlists', wardListSchema)
+const Log = mongoose.model('logs', logsSchema)
+
 module.exports = {
   User,
   Patient,
@@ -101,5 +108,6 @@ module.exports = {
   MedicineList,
   Biometric,
   Ward,
-  WardList
+  WardList,
+  Log
 }

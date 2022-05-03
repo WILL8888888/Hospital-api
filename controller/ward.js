@@ -1,6 +1,6 @@
-const { Ward, Patient, WardList} = require('../models')
+const { Ward, Patient, WardList, Log} = require('../models')
 const crud = require('./utils/index')
-
+const { timeShow } = require('../utils/index')
 const wardInfo =async (ctx)=>{
   await crud.find(Ward,null,ctx)
 }
@@ -85,7 +85,10 @@ const wardUpdatePrice = async (ctx)=>{
     success: '修改价格成功',
     fail: '修改价格失败'
   }
+  const log = `${roomName}房型将价格调整为${price}元`
+
   await crud.update(Ward,{wardType: roomName},{"$set": {'price' : price}},ctx,msg)
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 const wardFindPatientInfo = async (ctx)=>{
@@ -130,7 +133,10 @@ const wardAddRoom =async (ctx)=>{
     let wardBed = `00${(item)}床`
     addArr.push({'wardType':wardType,'wardRoom':roomName,'wardBed':wardBed,'patientId': '','doctorid': newRoomDoctorId,'nurseid': newRoomNurseId})
   })
+  const log = `${wardType}添加新房间： ${roomName},负责护士工号： ${newRoomNurseId},负责医生工号： ${newRoomDoctorId}`
+
   await crud.add(Ward,addArr,ctx)
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 module.exports = {

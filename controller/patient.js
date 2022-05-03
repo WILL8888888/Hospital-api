@@ -1,5 +1,6 @@
-const { Patient, Ward } = require('../models')
+const { Patient, Ward, Log} = require('../models')
 const crud = require('./utils/index')
+const { timeShow } = require('../utils/index')
 let status = {'patientStatus': 'inHospital'}
 let outStatus = {'patientStatus': 'outHospital'}
 //病人信息录入
@@ -23,7 +24,10 @@ const patientInfo = async (ctx) => {
     fail: '登记失败',
     error: '登记出现异常'
   }
+
+  const log = `病人${name}入住${wardType} ${wardRoom} ${wardBed},科室/主治医师：${departmentDoctor},病人病情：${condition}`
   await crud.add(Patient,{name, idnum, gender, address, departmentDoctor, wardType, wardRoom, wardBed, condition, date, timeStamps, patientStatus},ctx,msg)
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 //全部入院病人信息列表

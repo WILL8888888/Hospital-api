@@ -1,7 +1,8 @@
-const { MedicineList } = require('../models')
+const { MedicineList, Log, Patient} = require('../models')
 const crud = require('./utils/index')
 let status = {'medicineListStatus':'inHospital'}
 let outStatus = {'medicineListStatus': 'outHospital'}
+const { timeShow } = require('../utils/index')
 //药单信息录入
 const medicineInfo = async (ctx) => {
   let {medicineid= '', medicineName= '', price= 0, medicineNum= 0, idnum='',nurseWorkid='',doctorWorkid='', medicineListStatus= ''} = ctx.request.body
@@ -19,11 +20,25 @@ const medicineInfo = async (ctx) => {
     fail: '添加失败',
     error: '添加出现异常'
   }
-  if(isDouble){
-    await crud.update(MedicineList, {'medicineid': medicineid}, {"$set": {'medicineNum' : medicineNumTotal}}, ctx, msg)
-  }else{
-    await crud.add(MedicineList,{medicineid, medicineName, price, medicineNum, idnum, nurseWorkid, doctorWorkid, dispatchStatus: 'wait', medicineListStatus},ctx,msg)
-  } 
+  await Patient.findOne({idnum}).then(async res=>{
+    if(res.patientStatus === 'inHospital'){
+      if(isDouble){
+        await crud.update(MedicineList, {'medicineid': medicineid}, {"$set": {'medicineNum' : medicineNumTotal,'dispatchStatus': 'wait'}}, ctx, msg)
+      }else{
+        await crud.add(MedicineList,{medicineid, medicineName, price, medicineNum, idnum, nurseWorkid, doctorWorkid, dispatchStatus: 'wait', medicineListStatus},ctx,msg)
+      }
+    
+      const log = `${medicineName}派发给${idnum},剂量数：${medicineNum}`;
+      await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
+    }else{
+      ctx.body = {
+        code: 400,
+        msg: '病人已经出院！'
+      } 
+    }
+  })
+
+  
 }
 
 const medicineListSearchAll =async (ctx)=>{

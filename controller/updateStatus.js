@@ -1,5 +1,6 @@
-const { Patient, MedicineList, Biometric} = require('../models')
+const { Patient, MedicineList, Biometric, Log} = require('../models')
 const crud = require('./utils/index')
+const { timeShow } = require('../utils/index')
 
 const updateAllStatus = async (ctx) => {
   let { idnum='', totalPrice = '', outWardPrice = '',outMedicineTotalPrice = '', outDate = ''} = ctx.request.body
@@ -18,6 +19,9 @@ const updateAllStatus = async (ctx) => {
     console.error(err)
   })
   await crud.update(Biometric,{'idnum': idnum},{"$set": {'biometricStatus' : 'outHospital'}},ctx)
+
+  const log = `身份证号为${idnum}的病人已经缴费成功，已经为其办理出院`
+  await crud.add(Log, {time: timeShow(new Date()), log: log},ctx)
 }
 
 
