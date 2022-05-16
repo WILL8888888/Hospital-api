@@ -33,7 +33,7 @@ const biometricAdd = async (ctx)=>{
 
 const biometricSearch = async (ctx)=>{
   let {idnum = '', name = ''} = ctx.request.body;
-  let status = {'patientStatus': 'inHospital'}
+  let status = {'biometricStatus': 'inHospital'}
   await crud.find(Biometric,idnum?{$and:[{'idnum' : idnum},status]}:{$and:[{'name' : {$regex:name}},status]},ctx)
 }
 
